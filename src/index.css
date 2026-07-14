@@ -1,0 +1,43 @@
+:root {
+  --navy: #0b1e3d;
+  --navy-deep: #061225;
+  --white: #ffffff;
+  --accent: #ff8a3d;
+  --accent-strong: #e86f22;
+  --muted: #8b96ab;
+  --line: rgba(255, 255, 255, 0.12);
+  --success: #3ddc84;
+
+  color-scheme: dark;
+  font: 16px/1.5 system-ui, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--navy-deep);
+  color: var(--white);
+  min-height: 100svh;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
