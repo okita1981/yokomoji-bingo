@@ -1,8 +1,11 @@
 type Props = {
   onStart: () => void;
+  onOpenGlossary: () => void;
+  onOpenCollection: () => void;
+  onOpenMemory: () => void;
 };
 
-export function Home({ onStart }: Props) {
+export function Home({ onStart, onOpenGlossary, onOpenCollection, onOpenMemory }: Props) {
   return (
     <div className="screen home-screen">
       <div className="home-hero">
@@ -11,6 +14,18 @@ export function Home({ onStart }: Props) {
         <button type="button" className="primary-btn" onClick={onStart}>
           会議を始める
         </button>
+
+        <div className="home-secondary-nav">
+          <button type="button" className="secondary-btn" onClick={onOpenGlossary}>
+            📖 横文字用語集
+          </button>
+          <button type="button" className="secondary-btn" onClick={onOpenCollection}>
+            🏆 称号コレクション
+          </button>
+          <button type="button" className="secondary-btn" onClick={onOpenMemory}>
+            🗂 会議メモリ
+          </button>
+        </div>
       </div>
 
       <div className="home-about">

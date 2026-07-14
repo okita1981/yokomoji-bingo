@@ -2,7 +2,7 @@ export type Word = {
   id: string;
   label: string; // カードに表示する横文字
   meaning: string; // 一般的な日本語での短い説明（用語集用）
-  translation: string; // おじさん翻訳の断片
+  translation: string; // 翻訳の断片（ラスボス文章から生成する翻訳文の材料）
   category: "common";
 };
 

@@ -1,5 +1,5 @@
 export function buildShareText(title: string, shareText: string, translationFirstLine: string): string {
-  return `今日の会議で『${title}』に昇格しました。\n${shareText}\nラスボス翻訳：${translationFirstLine}\n#横文字ビンゴ`;
+  return `今日の会議で『${title}』に昇格しました。\n${shareText}\n翻訳：${translationFirstLine}\n#横文字ビンゴ`;
 }
 
 export async function shareResult(

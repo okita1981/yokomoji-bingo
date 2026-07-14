@@ -1,10 +1,7 @@
-import { useState } from "react";
 import type { Word } from "../data/words";
-import type { CustomWord } from "../types";
 import { BingoCard } from "../components/BingoCard";
 import { BingoModal } from "../components/BingoModal";
 import { CustomWordInput } from "../components/CustomWordInput";
-import { GlossaryModal } from "../components/GlossaryModal";
 
 type Props = {
   card: Word[];
@@ -13,12 +10,14 @@ type Props = {
   selectedCount: number;
   justBingo: boolean;
   modalTitle: string;
+  modalTitleImagePath: string | null;
+  modalTitleIsNew: boolean;
   onToggle: (index: number) => void;
   onAcknowledgeBingo: () => void;
   onNewMeeting: () => void;
   onEndMeeting: () => void;
   onAddCustomWord: (label: string, translation: string, meaning: string) => void;
-  customWords: CustomWord[];
+  onOpenGlossary: () => void;
 };
 
 export function Bingo({
@@ -28,15 +27,15 @@ export function Bingo({
   selectedCount,
   justBingo,
   modalTitle,
+  modalTitleImagePath,
+  modalTitleIsNew,
   onToggle,
   onAcknowledgeBingo,
   onNewMeeting,
   onEndMeeting,
   onAddCustomWord,
-  customWords,
+  onOpenGlossary,
 }: Props) {
-  const [glossaryOpen, setGlossaryOpen] = useState(false);
-
   return (
     <div className="screen bingo-screen">
       <div className="bingo-topbar">
@@ -51,7 +50,7 @@ export function Bingo({
         <button
           type="button"
           className="glossary-btn"
-          onClick={() => setGlossaryOpen(true)}
+          onClick={onOpenGlossary}
           aria-label="横文字用語集"
         >
           📖 横文字用語集
@@ -71,10 +70,13 @@ export function Bingo({
         </button>
       </div>
 
-      {justBingo && <BingoModal title={modalTitle} onClose={onAcknowledgeBingo} />}
-
-      {glossaryOpen && (
-        <GlossaryModal customWords={customWords} onClose={() => setGlossaryOpen(false)} />
+      {justBingo && (
+        <BingoModal
+          title={modalTitle}
+          imagePath={modalTitleImagePath}
+          isNew={modalTitleIsNew}
+          onClose={onAcknowledgeBingo}
+        />
       )}
     </div>
   );

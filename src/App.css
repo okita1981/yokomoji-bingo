@@ -60,6 +60,19 @@
   margin-bottom: 12px;
 }
 
+.home-secondary-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.home-secondary-nav .secondary-btn {
+  font-size: 14px;
+  padding: 12px;
+  font-weight: 600;
+}
+
 .home-about {
   text-align: left;
   background: rgba(255, 255, 255, 0.04);
@@ -351,10 +364,39 @@
   margin-bottom: 8px;
 }
 
+.modal-title-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.modal-title-image img {
+  max-width: 72px;
+  max-height: 72px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 .modal-title {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.new-badge {
+  display: inline-block;
+  background: var(--success);
+  color: var(--navy-deep);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border-radius: 999px;
+  padding: 2px 8px;
 }
 
 .modal-btn {
@@ -376,6 +418,11 @@
 .result-eyebrow {
   color: var(--muted);
   font-size: 13px;
+}
+
+.result-new-badge {
+  display: flex;
+  justify-content: center;
 }
 
 .result-title-image {
@@ -467,4 +514,161 @@
   text-align: center;
   font-size: 13px;
   color: var(--success);
+}
+
+/* Collection / Meeting Memory (shared header pattern) */
+.collection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.collection-header h1 {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.collection-progress {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.collection-screen,
+.memory-list-screen,
+.memory-detail-screen {
+  overflow-y: auto;
+}
+
+.collection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.collection-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: left;
+}
+
+.collection-card.unlocked {
+  background: rgba(255, 138, 61, 0.08);
+  border-color: rgba(255, 138, 61, 0.35);
+}
+
+.collection-card.locked {
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.6;
+}
+
+.collection-card-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.collection-card-image img {
+  max-width: 96px;
+  max-height: 96px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.collection-card h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.collection-card.locked h2 {
+  color: var(--muted);
+}
+
+.collection-card-description {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.collection-card-stats {
+  display: flex;
+  gap: 14px;
+  margin: 0 0 8px;
+}
+
+.collection-card-stats dt {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.collection-card-stats dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.collection-card-condition {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.collection-card-locked-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* Meeting Memory */
+.memory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.memory-card {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: left;
+  color: var(--white);
+}
+
+.memory-card-date {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.memory-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 2px 0 4px;
+}
+
+.memory-card-stats {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.memory-card-translation {
+  font-size: 13px;
+}
+
+.memory-delete-all {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  width: 100%;
 }

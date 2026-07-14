@@ -3,22 +3,33 @@ import type { Word } from "../data/words";
 import type { TitleDefinition } from "../data/titles";
 import { shareResult } from "../utils/share";
 import { computeScore } from "../utils/titles";
+import { TitleImage } from "../components/TitleImage";
+import { NewBadge } from "../components/NewBadge";
 
 type Props = {
   titleDef: TitleDefinition;
+  isNewTitle: boolean;
   bingoCount: number;
   selectedWords: Word[];
   bossText: string;
   translation: string;
   onReplay: () => void;
+  onViewCollection: () => void;
 };
 
-export function Result({ titleDef, bingoCount, selectedWords, bossText, translation, onReplay }: Props) {
+export function Result({
+  titleDef,
+  isNewTitle,
+  bingoCount,
+  selectedWords,
+  bossText,
+  translation,
+  onReplay,
+  onViewCollection,
+}: Props) {
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const [imageFailed, setImageFailed] = useState(false);
 
   const score = computeScore(bingoCount, selectedWords.length);
-  const showImage = Boolean(titleDef.imagePath) && !imageFailed;
 
   const handleShare = async () => {
     const result = await shareResult(titleDef.name, titleDef.shareText, translation);
@@ -32,11 +43,13 @@ export function Result({ titleDef, bingoCount, selectedWords, bossText, translat
     <div className="screen result-screen">
       <p className="result-eyebrow">今日のあなたの称号</p>
 
-      {showImage && (
-        <div className="result-title-image">
-          <img src={titleDef.imagePath!} alt={titleDef.name} onError={() => setImageFailed(true)} />
+      {isNewTitle && (
+        <div className="result-new-badge">
+          <NewBadge />
         </div>
       )}
+
+      <TitleImage imagePath={titleDef.imagePath} alt={titleDef.name} className="result-title-image" />
 
       <h1 className="result-title">{titleDef.name}</h1>
       <p className="result-title-description">{titleDef.description}</p>
@@ -74,13 +87,16 @@ export function Result({ titleDef, bingoCount, selectedWords, bossText, translat
       </section>
 
       <section className="result-section">
-        <h2>現場のおじさん翻訳</h2>
+        <h2>翻訳</h2>
         <p className="translation-text">{translation}</p>
       </section>
 
       <div className="result-actions">
         <button type="button" className="primary-btn" onClick={handleShare}>
           シェアする
+        </button>
+        <button type="button" className="secondary-btn" onClick={onViewCollection}>
+          コレクションを見る
         </button>
         <button type="button" className="secondary-btn" onClick={onReplay}>
           もう一度遊ぶ

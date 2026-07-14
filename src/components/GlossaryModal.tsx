@@ -42,7 +42,7 @@ export function GlossaryModal({ customWords, onClose }: Props) {
             <div key={w.id} className="glossary-card">
               <h2>{w.label}</h2>
               <p className="glossary-meaning">{w.meaning}</p>
-              <p className="glossary-translation-label">現場のおじさん翻訳</p>
+              <p className="glossary-translation-label">翻訳</p>
               <p className="glossary-translation">{w.translation}</p>
             </div>
           ))

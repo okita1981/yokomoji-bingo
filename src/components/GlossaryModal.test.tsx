@@ -46,6 +46,12 @@ describe("GlossaryModal", () => {
     expect(screen.getByText("バリューアップ")).toBeInTheDocument();
   });
 
+  it("labels the translation section as 翻訳, not 現場のおじさん翻訳", () => {
+    render(<GlossaryModal customWords={[]} onClose={() => {}} />);
+    expect(screen.getAllByText("翻訳").length).toBeGreaterThan(0);
+    expect(screen.queryByText("現場のおじさん翻訳")).not.toBeInTheDocument();
+  });
+
   it("shows the default meaning for a custom word without one", () => {
     const custom: CustomWord = {
       id: "custom_2",

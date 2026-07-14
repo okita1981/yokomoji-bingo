@@ -52,7 +52,7 @@ export function generateBossText(selectedWords: Word[], allAvailableWords: Word[
 }
 
 // ラスボス文章で実際に使ったワードのtranslationを使って生成する。
-export function generateOjisanTranslation(usedWords: Word[]): string {
+export function generateTranslation(usedWords: Word[]): string {
   const seen = new Set<string>();
   const fragments: string[] = [];
   for (const w of usedWords) {

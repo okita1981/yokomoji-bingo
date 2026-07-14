@@ -47,7 +47,7 @@ export function CustomWordInput({ onAdd }: Props) {
       />
       <input
         type="text"
-        placeholder="おじさん翻訳（任意）"
+        placeholder="翻訳（任意）"
         value={translation}
         onChange={(e) => setTranslation(e.target.value)}
         maxLength={30}

@@ -1,72 +1,119 @@
 # 称号カタログ（title-catalog）
 
-正本ファイル: [`src/data/titles.ts`](../src/data/titles.ts)（データ）／[`src/utils/titles.ts`](../src/utils/titles.ts)（判定ロジック）
+正本ファイル: [`src/data/titles.ts`](../src/data/titles.ts)（データ）／[`src/utils/titles.ts`](../src/utils/titles.ts)（判定ロジック）／[`src/utils/titleCollection.ts`](../src/utils/titleCollection.ts)（コレクション保存）
 
 このドキュメントは、称号キャラクターイラストの制作を進める際の正本として使用する。
 称号を追加・変更した場合は、必ず `src/data/titles.ts` と本ファイルを同時に更新すること。
 
 ## 称号総数
 
-**8種類**（+ 未達成時フォールバック1種類 = 実質9パターン）
+**20種類**（+ 未達成時フォールバック1種類 = 実質21パターン。フォールバックは称号コレクションには含めない）
 
-## 称号一覧（rank降順・優先順位順）
+## 判定の階層構造（重要）
 
-| rank | id | 称号名 | 説明 | 獲得条件（conditionLabel） | imagePath | 到達可能性 |
-|---|---|---|---|---|---|---|
-| 8 | `series_a_ceo` | シリーズA調達済みCEO | 売上より先に、世界観と採用資料が完成している。 | 横文字を20語以上選択 | `null` | ○（カード24語中20語選択で到達） |
-| 7 | `chief_buzzword_officer` | Chief Buzzword Officer | 組織の横文字を統括する最高責任者。 | ビンゴを3ライン以上達成 | `null` | ○（12ライン中3ライン） |
-| 6 | `consulting_fit` | コンサル適性あり | 一言で済む話を、三枚のスライドに展開できる。 | スコア30以上 | `null` | △ 条件自体は成立するが、**表示される称号としては事実上到達不能**（下記注記参照） |
-| 5 | `corporate_planning_prodigy` | 経営企画の申し子 | 具体策がなくても、資料の方向性は整えられる。 | スコア25以上 | `null` | ○ |
-| 4 | `northstar_reacher` | ノーススター到達者 | 北極星には到達できないという事実は、まだ知らない。 | スコア20以上 | `null` | ○ |
-| 3 | `aspiration_manager` | アスピレーション管理職 | 部下の目標を横文字に変換する能力を獲得した。 | スコア15以上 | `null` | ○ |
-| 2 | `high_awareness_master` | 意識高い会議マスター | 会議の空気を読みながら、横文字も的確に選べるようになった。 | スコア10以上 | `null` | ○ |
-| 1 | `yokomoji_native` | 横文字ネイティブ | 会議の言葉を聞き逃さない、若手有望株。 | ビンゴを1ライン達成 | `null` | ○ |
-| 0 | `still_speaks_japanese` | まだ日本語で会話できる人 | 今日は横文字の少ない、健全な会議でした。 | 称号条件未達成 | `null` | ○（正式称号コレクションには含めない） |
+称号は単純な`rank`降順だけでは決まらない。`category`によって3段階の階層で解決する（`src/utils/titles.ts` の `computeTitleDefinition`）。
+
+1. **special（最上位2件）**: `series_a_ceo` → `chief_buzzword_officer` の順に判定し、どちらかが成立した時点で確定する。両方成立する場合は`series_a_ceo`が勝つ。
+2. **combo（特定ワード組み合わせ、6件）**: specialが1つも成立しない場合のみ評価する。`requiredWordIds`が全て選択済みの組み合わせが対象。複数のcomboが同時成立した場合は`rank`が最も高いものを採用する。
+3. **score / bingo / selected（通常成長、12件）**: specialもcomboも成立しない場合のみ評価する。条件を満たしたものの中で`rank`が最も高いものを採用する。
+4. **NO_TITLE**: どの階層でも1件も成立しない場合のフォールバック。
+
+`rank`はカタログ内の表示順・**同一カテゴリ内**でのタイブレークにのみ使う値であり、カテゴリをまたいだ優先順位の決定には使わない（例: `chief_buzzword_officer`のrank(18)は`pre_unicorn_ceo`のrank(19)より小さいが、specialカテゴリのため常にcomboより優先される）。
+
+## 称号一覧（rank順）
 
 スコア計算式: `score = bingoCount * 5 + selectedWordCount`
 
-## 条件競合時の扱い
+| rank | id | 称号名 | category | 条件（conditionLabel） | 必要ワードID | imagePath |
+|---:|---|---|---|---|---|---|
+| 1 | `yokomoji_apprentice` | 横文字見習い | selected | 横文字を1語以上選択 | - | `null` |
+| 2 | `yokomoji_native` | 横文字ネイティブ | bingo | ビンゴを1ライン達成 | - | `null` |
+| 3 | `agenda_checker` | アジェンダ確認係 | selected | 横文字を5語以上選択 | - | `null` |
+| 4 | `alignment_staff` | アライン担当 | score | スコア8以上 | - | `null` |
+| 5 | `high_awareness_master` | 意識高い会議マスター | score | スコア10以上 | - | `null` |
+| 6 | `resolution_supervisor` | 解像度向上主任 | score | スコア13以上 | - | `null` |
+| 7 | `issue_manager` | イシュー特定課長 | score | スコア16以上 | - | `null` |
+| 8 | `aspiration_manager` | アスピレーション管理職 | score | スコア20以上 | - | `null` |
+| 9 | `milestone_director` | マイルストーン部長 | combo | must・milestone・roadmapを選択 | `must`,`milestone`,`roadmap` | `null` |
+| 10 | `northstar_reacher` | ノーススター到達者 | score | スコア25以上 | - | `null` |
+| 11 | `narrative_officer` | ナラティブ統括責任者 | combo | narrative・insight・reframeを選択 | `narrative`,`insight`,`reframe` | `null` |
+| 12 | `corporate_planning_prodigy` | 経営企画の申し子 | score | スコア30以上 | - | `null` |
+| 13 | `capability_head` | ケイパビリティ開発本部長 | score | スコア35以上 | - | `null` |
+| 14 | `synergy_executive` | シナジー創出執行役員 | combo | synergy・ecosystem・cocreationを選択 | `synergy`,`ecosystem`,`cocreation` | `null` |
+| 15 | `consulting_fit` | コンサル適性あり | score | **スコア38以上**（原案40から調整、下記参照） | - | `null` |
+| 16 | `purpose_evangelist` | パーパス経営伝道師 | combo | purpose・aspiration・northstarを選択 | `purpose`,`aspiration`,`northstar` | `null` |
+| 17 | `chief_alignment_officer` | Chief Alignment Officer | combo | align・alignmentを選択 | `align`,`alignment` | `null` |
+| 18 | `chief_buzzword_officer` | Chief Buzzword Officer | **special** | ビンゴを5ライン以上達成 | - | `null` |
+| 19 | `pre_unicorn_ceo` | ユニコーン予備軍CEO | combo | pmf・gtm・scalabilityを選択 | `pmf`,`gtm`,`scalability` | `null` |
+| 20 | `series_a_ceo` | シリーズA調達済みCEO | **special** | 横文字を20語以上選択 | - | `null` |
+| 0 | `still_speaks_japanese` | まだ日本語で会話できる人 | - | 称号条件未達成（コレクション対象外） | - | `null` |
 
-複数の称号条件が同時に成立した場合、`rank`が最も高い称号を採用する（`src/utils/titles.ts` の `computeTitleDefinition`）。
-条件分岐の記述順に依存せず、常に `titleDefinitions` 配列を `rank` 降順でソートしてから先頭を採用する構造のため、配列の順序を変えても判定結果は変わらない。
+## `consulting_fit` の条件調整について
 
-例：ビンゴ3回達成かつ選択語数22語の場合 → `chief_buzzword_officer`(rank7) と `series_a_ceo`(rank8) の両方が成立するが、rankが高い `series_a_ceo` が採用される。
+指示書の原案は「スコア40以上」だったが、以下の理由で**スコア38以上**へ調整した。
 
-### 既知の到達性の注記（`consulting_fit`）
+- special条件（`bingoCount>=5` または `selectedWordCount>=20`）を避けた状態で到達できる最大スコアは `bingoCount<=4` かつ `selectedWordCount<=19` の組み合わせで `4*5+19=39`。
+- 原案の40はこの上限を超えており、通常階層の表示称号としては到達不可能だった。
+- 到達可能性を優先するという指示書の方針（「到達不能称号がある場合は、条件を調整して全称号を到達可能にしてください」）に従い、上限39以下の38に調整した。
+- 全20称号の到達可能性は `src/utils/titles.test.ts` の `computeTitleDefinition` テストで検証済み。
 
-`consulting_fit`（コンサル適性あり、スコア30以上）は、条件式自体は正しく成立するが、**表示結果として選ばれることが数学的にほぼ無い**。
-理由：スコア30以上に到達するには `bingoCount*5 + selectedCount >= 30` が必要。`chief_buzzword_officer`（rank7）の条件（bingo≥3）を避けるには bingoCount は0〜2に限られ、その場合 `selectedCount` は最低20以上必要になる。しかし `selectedCount >= 20` は同時に `series_a_ceo`（rank8）の条件も満たしてしまうため、rank比較で必ず `series_a_ceo` に負ける。bingoCount≥3のケースも同様に `chief_buzzword_officer` に負ける。
-この特性は本改修で新たに発生したものではなく、指示書が定義した優先順位（1位シリーズA調達済みCEO〜8位横文字ネイティブ）と閾値（スコア30以上）をそのまま実装した場合に元々内在する性質である。テスト（`src/utils/titles.test.ts`）にこの事実を明記した。称号追加・閾値変更を検討する際は、この重なりに留意すること。
+## 称号コレクション保存仕様（`UnlockedTitleRecord`）
 
-## 未達成時（NO_TITLE）
+```ts
+export type UnlockedTitleRecord = {
+  titleId: string;
+  firstUnlockedAt: string;
+  lastUnlockedAt: string;
+  unlockCount: number;
+  bestScore: number;
+  bestBingoCount: number;
+  bestSelectedWordCount: number;
+};
+```
 
-条件を1つも満たさない場合は `still_speaks_japanese` を返す。称号コレクション上の正式称号一覧には含めないが、Result画面には通常の称号と同じ構造（`TitleDefinition`）で表示される。
+- localStorageキー: `yokomoji-bingo:titleCollection:v1`
+- `still_speaks_japanese`（NO_TITLE）は記録しない
+- 画像・名称・説明は保存せず、`titleId`を通じて`titleDefinitions`から都度参照する（後から`imagePath`や文言を変更しても、過去データの移行なしに反映される）
+- 初回獲得時に`firstUnlockedAt`を設定し、以降は更新しない。`lastUnlockedAt`は獲得の都度更新。`unlockCount`は加算。`bestScore`/`bestBingoCount`/`bestSelectedWordCount`は都度最大値を保持
 
-## 将来の画像ファイル名（想定・未確定）
+## NEW判定の仕様
 
-イラスト制作時は以下のファイル名を目安とし、`imagePath` に反映する。
-
-| id | 想定ファイル名 | 画像制作状況 |
-|---|---|---|
-| `yokomoji_native` | `/images/titles/yokomoji-native.webp` | Not Created |
-| `high_awareness_master` | `/images/titles/high-awareness-master.webp` | Not Created |
-| `aspiration_manager` | `/images/titles/aspiration-manager.webp` | Not Created |
-| `northstar_reacher` | `/images/titles/northstar-reacher.webp` | Not Created |
-| `corporate_planning_prodigy` | `/images/titles/corporate-planning-prodigy.webp` | Not Created |
-| `consulting_fit` | `/images/titles/consulting-fit.webp` | Not Created |
-| `chief_buzzword_officer` | `/images/titles/chief-buzzword-officer.webp` | Not Created |
-| `series_a_ceo` | `/images/titles/series-a-ceo.webp` | Not Created |
-| `still_speaks_japanese` | `/images/titles/still-speaks-japanese.webp` | Not Created |
+- 「会議を終了する」を押した時点（`App.tsx`の`handleEndMeeting`）で、その称号が**このタイミング以前にコレクションへ記録されていなかった場合のみ** `isNewTitle: true`
+- ビンゴ成立モーダル（会議途中）でも同様のプレビュー判定を行うが、こちらは**永続化された称号コレクションと照合するだけ**で、モーダル表示時点ではコレクションへの書き込みは行わない（書き込みは会議終了時の1回のみ）
 
 ## 画像仕様（将来実装時の想定）
 
-- WebPまたはPNG
-- 縦長または正方形
-- 透過背景対応
-- 1称号につき1キャラクター
-- スマホ画面で称号名より上に表示（`Result.tsx` の `.result-title-image` 参照）
+- WebPまたはPNG、縦長または正方形、透過背景対応、1称号につき1キャラクター
+- `imagePath`が`null`、または画像読み込みに失敗した場合（`onError`発火時）は画像枠自体を非表示にする。プレースホルダーや人物シルエットは表示しない（共通コンポーネント`src/components/TitleImage.tsx`が担う）
+- 表示箇所は3つ: ①ビンゴ成立モーダル（小、NEW時のみ強調）②Result画面（最大）③称号コレクションの獲得済みカード
+- 画像を追加する場合は `src/data/titles.ts` の該当 `imagePath` にパスを設定するだけで、3画面すべてに反映される（コード変更不要）
 
-## 実装メモ
+## 将来の画像ファイル名（想定・未確定）
 
-- `imagePath` が `null`、または画像読み込みに失敗した場合（`onError`発火時）は画像枠自体を非表示にする。プレースホルダーや人物シルエットは表示しない（`src/screens/Result.tsx` 参照）。
-- 画像を追加する場合は `src/data/titles.ts` の該当 `imagePath` にパスを設定するだけで、`Result.tsx` 側のコード変更は不要。
+| id | 想定ファイル名 | 画像制作状況 |
+|---|---|---|
+| `yokomoji_apprentice` | `/images/titles/yokomoji-apprentice.webp` | Not Created |
+| `yokomoji_native` | `/images/titles/yokomoji-native.webp` | Not Created |
+| `agenda_checker` | `/images/titles/agenda-checker.webp` | Not Created |
+| `alignment_staff` | `/images/titles/alignment-staff.webp` | Not Created |
+| `high_awareness_master` | `/images/titles/high-awareness-master.webp` | Not Created |
+| `resolution_supervisor` | `/images/titles/resolution-supervisor.webp` | Not Created |
+| `issue_manager` | `/images/titles/issue-manager.webp` | Not Created |
+| `aspiration_manager` | `/images/titles/aspiration-manager.webp` | Not Created |
+| `milestone_director` | `/images/titles/milestone-director.webp` | Not Created |
+| `northstar_reacher` | `/images/titles/northstar-reacher.webp` | Not Created |
+| `narrative_officer` | `/images/titles/narrative-officer.webp` | Not Created |
+| `corporate_planning_prodigy` | `/images/titles/corporate-planning-prodigy.webp` | Not Created |
+| `capability_head` | `/images/titles/capability-head.webp` | Not Created |
+| `synergy_executive` | `/images/titles/synergy-executive.webp` | Not Created |
+| `consulting_fit` | `/images/titles/consulting-fit.webp` | Not Created |
+| `purpose_evangelist` | `/images/titles/purpose-evangelist.webp` | Not Created |
+| `chief_alignment_officer` | `/images/titles/chief-alignment-officer.webp` | Not Created |
+| `chief_buzzword_officer` | `/images/titles/chief-buzzword-officer.webp` | Not Created |
+| `pre_unicorn_ceo` | `/images/titles/pre-unicorn-ceo.webp` | Not Created |
+| `series_a_ceo` | `/images/titles/series-a-ceo.webp` | Not Created |
+| `still_speaks_japanese` | `/images/titles/still-speaks-japanese.webp` | Not Created |
+
+## 過去の設計記録（8件版、参考）
+
+前バージョン（8称号・スコアのみ判定）では `consulting_fit`（score>=30）がrank比較の都合で表示称号として事実上到達不能という既知の問題があった。今回の3階層化（special/combo/normal）と条件調整により解消済み。
