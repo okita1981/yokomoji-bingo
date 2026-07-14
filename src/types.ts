@@ -17,6 +17,7 @@ export const CARD_LENGTH = GRID_SIZE * GRID_SIZE;
 export const FREE_WORD: Word = {
   id: "__free__",
   label: "FREE",
+  meaning: "",
   translation: "",
   category: "common",
 };

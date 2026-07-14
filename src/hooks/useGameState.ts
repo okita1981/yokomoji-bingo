@@ -4,6 +4,7 @@ import { countCompletedLines } from "../utils/bingo";
 import { FREE_INDEX } from "../types";
 import type { CustomWord } from "../types";
 import type { Word } from "../data/words";
+import { CUSTOM_WORD_DEFAULT_MEANING, CUSTOM_WORD_DEFAULT_TRANSLATION } from "../data/words";
 
 const GAME_KEY = "yokomoji-bingo:game:v1";
 const CUSTOM_WORDS_KEY = "yokomoji-bingo:customWords:v1";
@@ -14,11 +15,21 @@ type StoredGame = {
   bingoCount: number;
 };
 
+// 旧データ（meaning未設定・カモフラージュ機能時代の保存分）との互換性を保つための補完。
+function withWordDefaults(word: Word): Word {
+  return {
+    ...word,
+    meaning: word.meaning ?? CUSTOM_WORD_DEFAULT_MEANING,
+    translation: word.translation ?? CUSTOM_WORD_DEFAULT_TRANSLATION,
+  };
+}
+
 function loadCustomWords(): CustomWord[] {
   try {
     const raw = localStorage.getItem(CUSTOM_WORDS_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as CustomWord[];
+    const parsed = JSON.parse(raw) as CustomWord[];
+    return parsed.map((w) => withWordDefaults(w) as CustomWord);
   } catch {
     return [];
   }
@@ -30,7 +41,7 @@ function loadGame(): StoredGame | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredGame;
     if (!parsed.card || !parsed.marked) return null;
-    return parsed;
+    return { ...parsed, card: parsed.card.map(withWordDefaults) };
   } catch {
     return null;
   }
@@ -95,13 +106,15 @@ export function useGameState() {
     setJustBingo(false);
   }, [customWords]);
 
-  const addCustomWord = useCallback((label: string, translation: string) => {
+  const addCustomWord = useCallback((label: string, translation: string, meaning: string = "") => {
     const trimmedLabel = label.trim();
     if (!trimmedLabel) return;
-    const trimmedTranslation = translation.trim() || "よしなに進めて";
+    const trimmedTranslation = translation.trim() || CUSTOM_WORD_DEFAULT_TRANSLATION;
+    const trimmedMeaning = meaning.trim() || CUSTOM_WORD_DEFAULT_MEANING;
     const newWord: CustomWord = {
       id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       label: trimmedLabel,
+      meaning: trimmedMeaning,
       translation: trimmedTranslation,
       category: "common",
       isCustom: true,

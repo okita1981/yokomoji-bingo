@@ -1,7 +1,10 @@
+import { useState } from "react";
 import type { Word } from "../data/words";
+import type { CustomWord } from "../types";
 import { BingoCard } from "../components/BingoCard";
 import { BingoModal } from "../components/BingoModal";
 import { CustomWordInput } from "../components/CustomWordInput";
+import { GlossaryModal } from "../components/GlossaryModal";
 
 type Props = {
   card: Word[];
@@ -14,8 +17,8 @@ type Props = {
   onAcknowledgeBingo: () => void;
   onNewMeeting: () => void;
   onEndMeeting: () => void;
-  onHide: () => void;
-  onAddCustomWord: (label: string, translation: string) => void;
+  onAddCustomWord: (label: string, translation: string, meaning: string) => void;
+  customWords: CustomWord[];
 };
 
 export function Bingo({
@@ -29,9 +32,11 @@ export function Bingo({
   onAcknowledgeBingo,
   onNewMeeting,
   onEndMeeting,
-  onHide,
   onAddCustomWord,
+  customWords,
 }: Props) {
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
+
   return (
     <div className="screen bingo-screen">
       <div className="bingo-topbar">
@@ -43,8 +48,13 @@ export function Bingo({
             選択 <strong>{selectedCount}</strong>
           </span>
         </div>
-        <button type="button" className="hide-btn" onClick={onHide} aria-label="隠す">
-          隠す
+        <button
+          type="button"
+          className="glossary-btn"
+          onClick={() => setGlossaryOpen(true)}
+          aria-label="横文字用語集"
+        >
+          📖 横文字用語集
         </button>
       </div>
 
@@ -62,6 +72,10 @@ export function Bingo({
       </div>
 
       {justBingo && <BingoModal title={modalTitle} onClose={onAcknowledgeBingo} />}
+
+      {glossaryOpen && (
+        <GlossaryModal customWords={customWords} onClose={() => setGlossaryOpen(false)} />
+      )}
     </div>
   );
 }

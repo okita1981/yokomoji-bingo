@@ -1,19 +1,21 @@
 import { useState } from "react";
 
 type Props = {
-  onAdd: (label: string, translation: string) => void;
+  onAdd: (label: string, translation: string, meaning: string) => void;
 };
 
 export function CustomWordInput({ onAdd }: Props) {
   const [label, setLabel] = useState("");
+  const [meaning, setMeaning] = useState("");
   const [translation, setTranslation] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!label.trim()) return;
-    onAdd(label, translation);
+    onAdd(label, translation, meaning);
     setLabel("");
+    setMeaning("");
     setTranslation("");
     setOpen(false);
   };
@@ -35,6 +37,13 @@ export function CustomWordInput({ onAdd }: Props) {
         onChange={(e) => setLabel(e.target.value)}
         maxLength={20}
         required
+      />
+      <input
+        type="text"
+        placeholder="意味（任意）"
+        value={meaning}
+        onChange={(e) => setMeaning(e.target.value)}
+        maxLength={60}
       />
       <input
         type="text"
