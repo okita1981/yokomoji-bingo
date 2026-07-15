@@ -10,13 +10,16 @@ export type MeetingMemory = {
   score: number;
   selectedWordIds: string[];
   selectedWordLabels: string[];
-  bossSentence: string;
+  meetingMinutes: string;
   translation: string;
+  /** @deprecated 旧フィールド名。読み込み時にmeetingMinutesへ補完される。新規保存では使用しない。 */
+  bossSentence?: string;
 };
 
-function isValidMemory(value: unknown): value is MeetingMemory {
+function isValidStoredMemory(value: unknown): value is Record<string, unknown> {
   if (!value || typeof value !== "object") return false;
   const m = value as Record<string, unknown>;
+  const hasMinutesField = typeof m.meetingMinutes === "string" || typeof m.bossSentence === "string";
   return (
     typeof m.id === "string" &&
     typeof m.createdAt === "string" &&
@@ -26,9 +29,17 @@ function isValidMemory(value: unknown): value is MeetingMemory {
     typeof m.score === "number" &&
     Array.isArray(m.selectedWordIds) &&
     Array.isArray(m.selectedWordLabels) &&
-    typeof m.bossSentence === "string" &&
+    hasMinutesField &&
     typeof m.translation === "string"
   );
+}
+
+// 旧データ（meetingMinutes未設定・bossSentenceのみ保存されていた分）との互換性を保つための補完。
+function withMeetingMinutesFallback(raw: Record<string, unknown>): MeetingMemory {
+  return {
+    ...raw,
+    meetingMinutes: (raw.meetingMinutes as string) ?? (raw.bossSentence as string) ?? "",
+  } as MeetingMemory;
 }
 
 export function loadMeetingMemories(): MeetingMemory[] {
@@ -37,7 +48,7 @@ export function loadMeetingMemories(): MeetingMemory[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isValidMemory);
+    return parsed.filter(isValidStoredMemory).map(withMeetingMinutesFallback);
   } catch {
     return [];
   }
@@ -52,8 +63,9 @@ function generateMemoryId(): string {
 }
 
 // 新しい順（先頭）に追加し、最大100件を超えた分は古いものから削除する。
+// 新規保存は常にmeetingMinutesフィールドのみを使用する（bossSentenceは書き込まない）。
 export function addMeetingMemory(
-  data: Omit<MeetingMemory, "id" | "createdAt">,
+  data: Omit<MeetingMemory, "id" | "createdAt" | "bossSentence">,
   nowIso: string
 ): MeetingMemory[] {
   const memories = loadMeetingMemories();

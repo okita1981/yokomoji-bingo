@@ -1,32 +1,33 @@
-# React + TypeScript + Vite
+# Buzzword Quest
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+意識だけで上まで行け。横文字を集め、組織の頂点へ。
 
-Currently, two official plugins are available:
+会議に登場する横文字を収集し、意識の高さを可視化するスマホ向けPWA。メインゲーム方式の名称は「横文字ビンゴ」（5×5・12ライン判定）。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 主な機能
 
-## React Compiler
+- 横文字ビンゴ（5×5・12ライン判定）／カスタムワード追加
+- 横文字用語集（40語の意味・翻訳を検索付きで閲覧）
+- 称号（20件・special/combo/normal階層判定）と称号コレクション（獲得履歴・リセット機能）
+- 会議メモリ（過去100件までの議事録・翻訳の履歴、一覧/詳細/削除）
+- 本日の議事録・翻訳の自動生成（テンプレート・締め文を多数用意）
+- Web Share API連携、PWA対応、localStorage永続化
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ドキュメント
 
-## Expanding the Oxlint configuration
+- [称号カタログ](docs/title-catalog.md) — 20称号のデータ・判定ロジック・コレクション仕様
+- [会議メモリ仕様](docs/meeting-memory-spec.md) — 保存データ構造・移行方針
+- [コンテンツ生成仕様](docs/content-generation-spec.md) — 議事録テンプレート・翻訳生成ルール
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 開発
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
+npm run test
+npm run build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+---
+
+このプロジェクトはVite + React + TypeScriptで構築されている。

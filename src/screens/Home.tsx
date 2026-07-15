@@ -9,8 +9,10 @@ export function Home({ onStart, onOpenGlossary, onOpenCollection, onOpenMemory }
   return (
     <div className="screen home-screen">
       <div className="home-hero">
-        <h1>横文字ビンゴ</h1>
-        <p className="home-tagline">会議に出た横文字をタップしろ</p>
+        <h1>Buzzword Quest</h1>
+        <p className="home-tagline">意識だけで上まで行け</p>
+        <p className="home-subcopy">横文字を集め、組織の頂点へ。</p>
+
         <button type="button" className="primary-btn" onClick={onStart}>
           会議を始める
         </button>
@@ -30,13 +32,15 @@ export function Home({ onStart, onOpenGlossary, onOpenCollection, onOpenMemory }
 
       <div className="home-about">
         <h2>これは何？</h2>
+        <p>会議に登場する横文字を収集し、あなたの意識の高さを可視化するビジネスゲームです。</p>
         <p>
-          ビジネス用語学習アプリです。会議で誰かが「パーパス」「アライン」「ノーススター」と言うたびに、
-          あなたのボキャブラリー力がレベルアップしていく仕組みになっています（たぶん）。
+          「パーパス」「アライン」「ノーススター」などが発言されたら、該当するマスをタップしてください。
         </p>
         <p>
-          横文字を集めきると、あなたの意識の高さを客観的に測定した「称号」が授与されます。
-          学びは、いつも予期せぬ場所にあります。
+          会議終了後、使用された横文字をもとに本日の議事録と翻訳を生成し、あなたに最適な称号を授与します。
+        </p>
+        <p className="home-about-punchline">
+          なお、称号の獲得と実務能力に相関関係は確認されていません。
         </p>
       </div>
     </div>

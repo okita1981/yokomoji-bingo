@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { titleDefinitions } from "../data/titles";
 import type { UnlockedTitleRecord } from "../utils/titleCollection";
 import { TitleImage } from "../components/TitleImage";
@@ -5,6 +6,7 @@ import { TitleImage } from "../components/TitleImage";
 type Props = {
   records: UnlockedTitleRecord[];
   onClose: () => void;
+  onReset: () => void;
 };
 
 function formatDate(iso: string): string {
@@ -13,9 +15,19 @@ function formatDate(iso: string): string {
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
 }
 
-export function Collection({ records, onClose }: Props) {
+export function Collection({ records, onClose, onReset }: Props) {
+  const [confirmingReset, setConfirmingReset] = useState(false);
+  const [resetStatus, setResetStatus] = useState<string | null>(null);
+
   const sorted = [...titleDefinitions].sort((a, b) => a.rank - b.rank);
   const recordById = new Map(records.map((r) => [r.titleId, r]));
+
+  const handleConfirmReset = () => {
+    onReset();
+    setConfirmingReset(false);
+    setResetStatus("意識を初期化しました。日本語から再出発します。");
+    window.setTimeout(() => setResetStatus(null), 2500);
+  };
 
   return (
     <div className="screen collection-screen">
@@ -66,6 +78,34 @@ export function Collection({ records, onClose }: Props) {
           );
         })}
       </div>
+
+      <button type="button" className="collection-reset-btn" onClick={() => setConfirmingReset(true)}>
+        意識を初期化する
+      </button>
+
+      {resetStatus && <p className="share-status">{resetStatus}</p>}
+
+      {confirmingReset && (
+        <div className="modal-overlay" onClick={() => setConfirmingReset(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <p className="modal-title">
+              これまで獲得した称号、獲得回数、最高スコアをすべて削除します。
+              <br />
+              あなたは再び「まだ日本語で会話できる人」に戻ります。
+              <br />
+              本当に意識を初期化しますか？
+            </p>
+            <div className="custom-word-actions">
+              <button type="button" onClick={handleConfirmReset}>
+                初期化する
+              </button>
+              <button type="button" onClick={() => setConfirmingReset(false)}>
+                アスピレーションを維持する
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

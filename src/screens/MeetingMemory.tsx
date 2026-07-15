@@ -56,8 +56,8 @@ export function MeetingMemory({ memories, onClose, onDeleteOne, onDeleteAll }: P
         </section>
 
         <section className="result-section">
-          <h2>ラスボス文章</h2>
-          <p className="boss-text">{selected.bossSentence}</p>
+          <h2>本日の議事録</h2>
+          <p className="meeting-minutes-text">{selected.meetingMinutes}</p>
         </section>
 
         <section className="result-section">
@@ -69,7 +69,7 @@ export function MeetingMemory({ memories, onClose, onDeleteOne, onDeleteAll }: P
           <button
             type="button"
             className="primary-btn"
-            onClick={() => shareResult(def.name, def.shareText, selected.translation)}
+            onClick={() => shareResult(def.name, def.shareText, selected.meetingMinutes, selected.translation)}
           >
             シェアする
           </button>

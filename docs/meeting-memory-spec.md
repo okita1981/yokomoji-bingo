@@ -1,5 +1,7 @@
 # 会議メモリ仕様（meeting-memory-spec）
 
+アプリ正式名称: **Buzzword Quest**（メインゲーム方式の名称は「横文字ビンゴ」のまま）
+
 正本ファイル: [`src/utils/meetingMemory.ts`](../src/utils/meetingMemory.ts)（保存ロジック）／[`src/screens/MeetingMemory.tsx`](../src/screens/MeetingMemory.tsx)（画面）
 
 「会議メモリ」は、各会議のResultを履歴として保存し、後から一覧・詳細確認・削除できる機能。
@@ -16,14 +18,23 @@ export type MeetingMemory = {
   score: number;
   selectedWordIds: string[];
   selectedWordLabels: string[];
-  bossSentence: string;
+  meetingMinutes: string;
   translation: string;
+  /** @deprecated 旧フィールド名。読み込み時にmeetingMinutesへ補完される。新規保存では使用しない。 */
+  bossSentence?: string;
 };
 ```
 
 - `id`: `meeting_{timestamp}_{ランダム文字列}` 形式で会議ごとに一意に生成する（`generateMemoryId()`）
 - `titleId`: 称号定義（`titleDefinitions`）への参照のみを保持し、名称・説明・画像は保存しない。表示時は`titleId`から都度参照する
 - `selectedWordLabels`: 用語がカスタムワード削除等で後から参照できなくなった場合でも表示できるよう、labelはこの時点のスナップショットとして保存する（`selectedWordIds`は将来の用語集連携用に併せて保持）
+- `meetingMinutes`: 「本日の議事録」として画面に表示するテキスト（旧称「ラスボス文章」）。ユーザー向け表記変更に伴い、内部フィールド名も`bossSentence`から`meetingMinutes`へ改称した
+
+### 旧フィールド`bossSentence`からの移行
+
+- `bossSentence`という名称は`meetingMinutes`へ改称したが、**旧データを削除・変換する移行処理は行わない**
+- `loadMeetingMemories()`が読み込み時に`meetingMinutes: record.meetingMinutes ?? record.bossSentence ?? ""`で自動補完するため、`bossSentence`のみを持つ旧レコードもエラーなく「本日の議事録」として表示される
+- **新規保存（`addMeetingMemory`）は常に`meetingMinutes`のみを書き込み、`bossSentence`は書き込まない**。ストレージ内は新旧フィールドが混在しうるが、読み込み側で常に吸収する
 
 ## 保存タイミング
 

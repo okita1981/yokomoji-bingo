@@ -11,7 +11,7 @@ type Props = {
   isNewTitle: boolean;
   bingoCount: number;
   selectedWords: Word[];
-  bossText: string;
+  meetingMinutes: string;
   translation: string;
   onReplay: () => void;
   onViewCollection: () => void;
@@ -22,7 +22,7 @@ export function Result({
   isNewTitle,
   bingoCount,
   selectedWords,
-  bossText,
+  meetingMinutes,
   translation,
   onReplay,
   onViewCollection,
@@ -32,7 +32,7 @@ export function Result({
   const score = computeScore(bingoCount, selectedWords.length);
 
   const handleShare = async () => {
-    const result = await shareResult(titleDef.name, titleDef.shareText, translation);
+    const result = await shareResult(titleDef.name, titleDef.shareText, meetingMinutes, translation);
     if (result === "shared") setShareStatus("シェアしました");
     else if (result === "copied") setShareStatus("クリップボードにコピーしました");
     else setShareStatus("シェアに失敗しました");
@@ -82,8 +82,8 @@ export function Result({
       </section>
 
       <section className="result-section">
-        <h2>ラスボス文章</h2>
-        <p className="boss-text">{bossText}</p>
+        <h2>本日の議事録</h2>
+        <p className="meeting-minutes-text">{meetingMinutes}</p>
       </section>
 
       <section className="result-section">

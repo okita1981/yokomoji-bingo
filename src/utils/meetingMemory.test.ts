@@ -17,7 +17,7 @@ function sampleData(overrides: Partial<Parameters<typeof addMeetingMemory>[0]> =
     score: 9,
     selectedWordIds: ["purpose"],
     selectedWordLabels: ["パーパス"],
-    bossSentence: "テストのラスボス文章",
+    meetingMinutes: "テストの議事録",
     translation: "テストの翻訳。",
     ...overrides,
   };
@@ -36,6 +36,7 @@ describe("meetingMemory", () => {
     expect(memories).toHaveLength(1);
     expect(memories[0].createdAt).toBe("2026-01-01T00:00:00.000Z");
     expect(memories[0].id).toMatch(/^meeting_/);
+    expect(memories[0].meetingMinutes).toBe("テストの議事録");
   });
 
   it("adds new memories to the front (newest first)", () => {
@@ -82,5 +83,75 @@ describe("meetingMemory", () => {
   it("filters out malformed entries instead of crashing", () => {
     localStorage.setItem(KEY, JSON.stringify([{ id: "x" }, "garbage", 42]));
     expect(loadMeetingMemories()).toEqual([]);
+  });
+});
+
+describe("meetingMemory - bossSentence backward compatibility", () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it("reads legacy records that only have bossSentence as meetingMinutes", () => {
+    const legacyRecord = {
+      id: "meeting_legacy_1",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      titleId: "yokomoji_native",
+      bingoCount: 1,
+      selectedWordCount: 4,
+      score: 9,
+      selectedWordIds: ["purpose"],
+      selectedWordLabels: ["パーパス"],
+      bossSentence: "旧フィールドのラスボス文章",
+      translation: "テストの翻訳。",
+    };
+    localStorage.setItem(KEY, JSON.stringify([legacyRecord]));
+
+    const memories = loadMeetingMemories();
+    expect(memories).toHaveLength(1);
+    expect(memories[0].meetingMinutes).toBe("旧フィールドのラスボス文章");
+  });
+
+  it("prefers meetingMinutes over bossSentence when both are present", () => {
+    const mixedRecord = {
+      id: "meeting_legacy_2",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      titleId: "yokomoji_native",
+      bingoCount: 1,
+      selectedWordCount: 4,
+      score: 9,
+      selectedWordIds: ["purpose"],
+      selectedWordLabels: ["パーパス"],
+      bossSentence: "古い方",
+      meetingMinutes: "新しい方",
+      translation: "テストの翻訳。",
+    };
+    localStorage.setItem(KEY, JSON.stringify([mixedRecord]));
+
+    expect(loadMeetingMemories()[0].meetingMinutes).toBe("新しい方");
+  });
+
+  it("does not write bossSentence when adding a new memory", () => {
+    addMeetingMemory(sampleData(), "2026-01-01T00:00:00.000Z");
+    const raw = JSON.parse(localStorage.getItem(KEY)!);
+    expect(raw[0].bossSentence).toBeUndefined();
+    expect(raw[0].meetingMinutes).toBe("テストの議事録");
+  });
+
+  it("does not clear existing memories when loading a mix of legacy and new records", () => {
+    const legacyRecord = {
+      id: "meeting_legacy_3",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      titleId: "yokomoji_native",
+      bingoCount: 1,
+      selectedWordCount: 4,
+      score: 9,
+      selectedWordIds: ["purpose"],
+      selectedWordLabels: ["パーパス"],
+      bossSentence: "旧データ",
+      translation: "テストの翻訳。",
+    };
+    localStorage.setItem(KEY, JSON.stringify([legacyRecord]));
+    const memories = addMeetingMemory(sampleData({ titleId: "new-one" }), "2026-01-02T00:00:00.000Z");
+    expect(memories).toHaveLength(2);
+    expect(memories.some((m) => m.meetingMinutes === "旧データ")).toBe(true);
   });
 });

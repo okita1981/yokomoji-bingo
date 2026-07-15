@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: '横文字ビンゴ',
-        short_name: '横文字ビンゴ',
-        description: '会議に出た横文字をタップしろ',
+        name: 'Buzzword Quest',
+        short_name: 'Buzzword Quest',
+        description: '意識だけで上まで行け。横文字を集め、組織の頂点へ。',
         theme_color: '#0b1e3d',
         background_color: '#0b1e3d',
         display: 'standalone',

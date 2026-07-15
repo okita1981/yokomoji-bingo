@@ -6,7 +6,7 @@ import { NO_TITLE, titleDefinitions } from "../data/titles";
 const baseProps = {
   bingoCount: 1,
   selectedWords: [],
-  bossText: "テストのラスボス文章",
+  meetingMinutes: "テストの議事録",
   translation: "テストの翻訳。要するに、みんなで頑張ります。",
   onReplay: () => {},
   onViewCollection: () => {},
@@ -50,5 +50,12 @@ describe("Result screen", () => {
   it("has a link to the title collection", () => {
     render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={false} />);
     expect(screen.getByRole("button", { name: "コレクションを見る" })).toBeInTheDocument();
+  });
+
+  it("labels the meeting minutes section as 本日の議事録, not ラスボス文章", () => {
+    render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={false} />);
+    expect(screen.getByText("本日の議事録")).toBeInTheDocument();
+    expect(screen.getByText("テストの議事録")).toBeInTheDocument();
+    expect(screen.queryByText("ラスボス文章")).not.toBeInTheDocument();
   });
 });

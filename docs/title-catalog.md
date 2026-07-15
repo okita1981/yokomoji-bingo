@@ -1,6 +1,10 @@
 # 称号カタログ（title-catalog）
 
+アプリ正式名称: **Buzzword Quest**（メインゲーム方式の名称は「横文字ビンゴ」のまま）
+
 正本ファイル: [`src/data/titles.ts`](../src/data/titles.ts)（データ）／[`src/utils/titles.ts`](../src/utils/titles.ts)（判定ロジック）／[`src/utils/titleCollection.ts`](../src/utils/titleCollection.ts)（コレクション保存）
+
+称号コレクションは`src/screens/Collection.tsx`の「意識を初期化する」から獲得状況をリセットできる（`resetTitleCollection()`）。会議メモリ・カスタムワード・進行中カード等、他のlocalStorageキーには一切影響しない。
 
 このドキュメントは、称号キャラクターイラストの制作を進める際の正本として使用する。
 称号を追加・変更した場合は、必ず `src/data/titles.ts` と本ファイルを同時に更新すること。

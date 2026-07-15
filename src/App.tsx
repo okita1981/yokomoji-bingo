@@ -4,10 +4,11 @@ import { useGameState } from "./hooks/useGameState";
 import { computeTitleDefinition, computeScore } from "./utils/titles";
 import { NO_TITLE } from "./data/titles";
 import type { TitleDefinition } from "./data/titles";
-import { generateBossText, generateTranslation } from "./utils/textGen";
+import { generateMeetingMinutes, generateTranslation } from "./utils/textGen";
 import {
   loadTitleCollection,
   recordTitleUnlock,
+  resetTitleCollection,
   isTitleUnlocked,
 } from "./utils/titleCollection";
 import type { UnlockedTitleRecord } from "./utils/titleCollection";
@@ -38,7 +39,7 @@ function App() {
     titleDef: TitleDefinition;
     isNewTitle: boolean;
     bingoCount: number;
-    bossText: string;
+    meetingMinutes: string;
     translation: string;
     selectedWords: ReturnType<typeof useGameState>["selectedWords"];
   } | null>(null);
@@ -67,8 +68,8 @@ function App() {
   };
 
   const handleEndMeeting = () => {
-    const { text, usedWords } = generateBossText(game.selectedWords);
-    const translation = generateTranslation(usedWords);
+    const { text, usedWords, category } = generateMeetingMinutes(game.selectedWords);
+    const translation = generateTranslation(usedWords, category);
     const nowIso = new Date().toISOString();
     const score = computeScore(game.bingoCount, game.selectedWords.length);
     const titleDef = currentTitleDef;
@@ -92,7 +93,7 @@ function App() {
         score,
         selectedWordIds,
         selectedWordLabels: game.selectedWords.map((w) => w.label),
-        bossSentence: text,
+        meetingMinutes: text,
         translation,
       },
       nowIso
@@ -103,7 +104,7 @@ function App() {
       titleDef,
       isNewTitle,
       bingoCount: game.bingoCount,
-      bossText: text,
+      meetingMinutes: text,
       translation,
       selectedWords: game.selectedWords,
     });
@@ -152,7 +153,7 @@ function App() {
           isNewTitle={resultSnapshot.isNewTitle}
           bingoCount={resultSnapshot.bingoCount}
           selectedWords={resultSnapshot.selectedWords}
-          bossText={resultSnapshot.bossText}
+          meetingMinutes={resultSnapshot.meetingMinutes}
           translation={resultSnapshot.translation}
           onReplay={handleReplay}
           onViewCollection={() => openOverlay("collection", "result")}
@@ -160,7 +161,14 @@ function App() {
       )}
 
       {screen === "collection" && (
-        <Collection records={titleRecords} onClose={() => setScreen(screenBeforeOverlay)} />
+        <Collection
+          records={titleRecords}
+          onClose={() => setScreen(screenBeforeOverlay)}
+          onReset={() => {
+            resetTitleCollection();
+            setTitleRecords([]);
+          }}
+        />
       )}
 
       {screen === "memory" && (

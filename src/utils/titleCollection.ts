@@ -82,3 +82,9 @@ export function recordTitleUnlock(
   saveTitleCollection(next);
   return { records: next, isNew: false };
 }
+
+// 称号コレクションのみを初期化する。会議メモリ・カスタムワード・進行中カード等、
+// 他のlocalStorageキーには一切触れない（責務は完全に独立している）。
+export function resetTitleCollection(): void {
+  saveTitleCollection([]);
+}

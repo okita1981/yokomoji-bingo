@@ -55,8 +55,14 @@
 }
 
 .home-tagline {
+  color: var(--accent);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.home-subcopy {
   color: var(--muted);
-  font-size: 16px;
+  font-size: 14px;
   margin-bottom: 12px;
 }
 
@@ -92,6 +98,13 @@
   color: var(--muted);
   font-size: 14px;
   margin-bottom: 8px;
+}
+
+.home-about-punchline {
+  color: var(--accent) !important;
+  font-style: italic;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 /* Bingo */
@@ -497,7 +510,7 @@
   font-size: 13px;
 }
 
-.boss-text,
+.meeting-minutes-text,
 .translation-text {
   font-size: 14px;
   line-height: 1.7;
@@ -671,4 +684,15 @@
   padding: 10px;
   font-size: 13px;
   width: 100%;
+}
+
+.collection-reset-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 12px;
+  width: 100%;
+  margin-top: 16px;
 }
