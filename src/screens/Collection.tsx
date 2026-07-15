@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { titleDefinitions } from "../data/titles";
+import type { TitleDefinition } from "../data/titles";
 import type { UnlockedTitleRecord } from "../utils/titleCollection";
 import { TitleImage } from "../components/TitleImage";
+import { RarityBadge } from "../components/RarityBadge";
+import { CardZoomModal } from "../components/CardZoomModal";
 
 type Props = {
   records: UnlockedTitleRecord[];
@@ -18,6 +21,7 @@ function formatDate(iso: string): string {
 export function Collection({ records, onClose, onReset }: Props) {
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [resetStatus, setResetStatus] = useState<string | null>(null);
+  const [zoomedTitle, setZoomedTitle] = useState<TitleDefinition | null>(null);
 
   const sorted = [...titleDefinitions].sort((a, b) => a.rank - b.rank);
   const recordById = new Map(records.map((r) => [r.titleId, r]));
@@ -28,6 +32,8 @@ export function Collection({ records, onClose, onReset }: Props) {
     setResetStatus("意識を初期化しました。日本語から再出発します。");
     window.setTimeout(() => setResetStatus(null), 2500);
   };
+
+  const zoomedRecord = zoomedTitle ? recordById.get(zoomedTitle.id) : undefined;
 
   return (
     <div className="screen collection-screen">
@@ -47,8 +53,18 @@ export function Collection({ records, onClose, onReset }: Props) {
           const record = recordById.get(def.id);
           if (record) {
             return (
-              <div key={def.id} className="collection-card unlocked">
-                <TitleImage imagePath={def.imagePath} alt={def.name} className="collection-card-image" />
+              <button
+                key={def.id}
+                type="button"
+                className="collection-card unlocked"
+                onClick={() => setZoomedTitle(def)}
+              >
+                <TitleImage
+                  imagePath={def.imagePath}
+                  alt={`${def.name}の称号キャラクターカード`}
+                  className="collection-card-image"
+                />
+                <RarityBadge rarity={def.rarity} />
                 <h2>{def.name}</h2>
                 <p className="collection-card-description">{def.description}</p>
                 <dl className="collection-card-stats">
@@ -66,11 +82,12 @@ export function Collection({ records, onClose, onReset }: Props) {
                   </div>
                 </dl>
                 <p className="collection-card-condition">{def.conditionLabel}</p>
-              </div>
+              </button>
             );
           }
           return (
             <div key={def.id} className="collection-card locked">
+              <RarityBadge rarity={def.rarity} />
               <h2>{def.name}</h2>
               <p className="collection-card-condition">{def.conditionLabel}</p>
               <p className="collection-card-locked-label">未獲得</p>
@@ -105,6 +122,10 @@ export function Collection({ records, onClose, onReset }: Props) {
             </div>
           </div>
         </div>
+      )}
+
+      {zoomedTitle && zoomedRecord && (
+        <CardZoomModal titleDef={zoomedTitle} record={zoomedRecord} onClose={() => setZoomedTitle(null)} />
       )}
     </div>
   );

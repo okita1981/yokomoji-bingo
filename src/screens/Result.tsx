@@ -5,10 +5,12 @@ import { shareResult } from "../utils/share";
 import { computeScore } from "../utils/titles";
 import { TitleImage } from "../components/TitleImage";
 import { NewBadge } from "../components/NewBadge";
+import { RarityBadge } from "../components/RarityBadge";
 
 type Props = {
   titleDef: TitleDefinition;
   isNewTitle: boolean;
+  unlockCount: number;
   bingoCount: number;
   selectedWords: Word[];
   meetingMinutes: string;
@@ -20,6 +22,7 @@ type Props = {
 export function Result({
   titleDef,
   isNewTitle,
+  unlockCount,
   bingoCount,
   selectedWords,
   meetingMinutes,
@@ -43,13 +46,21 @@ export function Result({
     <div className="screen result-screen">
       <p className="result-eyebrow">今日のあなたの称号</p>
 
-      {isNewTitle && (
+      {isNewTitle ? (
         <div className="result-new-badge">
           <NewBadge />
         </div>
+      ) : (
+        unlockCount > 1 && <p className="result-reacquired">この称号を再獲得しました（獲得回数：{unlockCount}回）</p>
       )}
 
-      <TitleImage imagePath={titleDef.imagePath} alt={titleDef.name} className="result-title-image" />
+      <TitleImage
+        imagePath={titleDef.imagePath}
+        alt={`${titleDef.name}の称号キャラクターカード`}
+        className="result-title-image"
+      />
+
+      <RarityBadge rarity={titleDef.rarity} />
 
       <h1 className="result-title">{titleDef.name}</h1>
       <p className="result-title-description">{titleDef.description}</p>

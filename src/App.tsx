@@ -25,6 +25,7 @@ import { Result } from "./screens/Result";
 import { Collection } from "./screens/Collection";
 import { MeetingMemory } from "./screens/MeetingMemory";
 import { GlossaryModal } from "./components/GlossaryModal";
+import { TitleAcquisitionModal } from "./components/TitleAcquisitionModal";
 
 type Screen = "home" | "bingo" | "result" | "collection" | "memory";
 
@@ -34,10 +35,12 @@ function App() {
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [titleRecords, setTitleRecords] = useState<UnlockedTitleRecord[]>(() => loadTitleCollection());
   const [meetingMemories, setMeetingMemories] = useState<MeetingMemoryData[]>(() => loadMeetingMemories());
+  const [pendingAcquisition, setPendingAcquisition] = useState<TitleDefinition | null>(null);
 
   const [resultSnapshot, setResultSnapshot] = useState<{
     titleDef: TitleDefinition;
     isNewTitle: boolean;
+    unlockCount: number;
     bingoCount: number;
     meetingMinutes: string;
     translation: string;
@@ -75,6 +78,7 @@ function App() {
     const titleDef = currentTitleDef;
 
     let isNewTitle = false;
+    let unlockCount = 0;
     if (titleDef.id !== NO_TITLE.id) {
       const { records, isNew } = recordTitleUnlock(
         titleDef.id,
@@ -83,6 +87,7 @@ function App() {
       );
       setTitleRecords(records);
       isNewTitle = isNew;
+      unlockCount = records.find((r) => r.titleId === titleDef.id)?.unlockCount ?? 1;
     }
 
     const memories = addMeetingMemory(
@@ -103,12 +108,19 @@ function App() {
     setResultSnapshot({
       titleDef,
       isNewTitle,
+      unlockCount,
       bingoCount: game.bingoCount,
       meetingMinutes: text,
       translation,
       selectedWords: game.selectedWords,
     });
-    setScreen("result");
+
+    // 初めて獲得した称号がある場合のみ、Result画面の前に獲得演出モーダルを挟む。
+    if (isNewTitle) {
+      setPendingAcquisition(titleDef);
+    } else {
+      setScreen("result");
+    }
   };
 
   const handleReplay = () => {
@@ -136,6 +148,7 @@ function App() {
           selectedCount={game.selectedWords.length}
           justBingo={game.justBingo}
           modalTitle={currentTitleDef.name}
+          modalTitleRarity={currentTitleDef.rarity}
           modalTitleImagePath={currentTitleDef.imagePath}
           modalTitleIsNew={currentTitleIsNew}
           onToggle={game.toggleCell}
@@ -151,6 +164,7 @@ function App() {
         <Result
           titleDef={resultSnapshot.titleDef}
           isNewTitle={resultSnapshot.isNewTitle}
+          unlockCount={resultSnapshot.unlockCount}
           bingoCount={resultSnapshot.bingoCount}
           selectedWords={resultSnapshot.selectedWords}
           meetingMinutes={resultSnapshot.meetingMinutes}
@@ -182,6 +196,16 @@ function App() {
 
       {glossaryOpen && (
         <GlossaryModal customWords={game.customWords} onClose={() => setGlossaryOpen(false)} />
+      )}
+
+      {pendingAcquisition && (
+        <TitleAcquisitionModal
+          titleDef={pendingAcquisition}
+          onContinue={() => {
+            setPendingAcquisition(null);
+            setScreen("result");
+          }}
+        />
       )}
     </>
   );

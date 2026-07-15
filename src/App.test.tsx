@@ -170,6 +170,7 @@ describe("App - title collection reset", () => {
     await user.click(screen.getByText("会議を始める"));
     await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
     await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" })); // first unlock -> acquisition modal first
     await user.click(screen.getByRole("button", { name: "コレクションを見る" }));
 
     const unlockedBefore = loadTitleCollection().length;
@@ -186,6 +187,7 @@ describe("App - title collection reset", () => {
     await user.click(screen.getByText("会議を始める"));
     await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
     await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" })); // first unlock -> acquisition modal first
     await user.click(screen.getByRole("button", { name: "コレクションを見る" }));
 
     const unlockedBefore = loadTitleCollection().length;
@@ -209,6 +211,7 @@ describe("App - title collection reset", () => {
     await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
 
     await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" })); // first unlock -> acquisition modal first
     expect(loadMeetingMemories()).toHaveLength(1);
     expect(loadTitleCollection().length).toBeGreaterThan(0);
 
@@ -221,5 +224,124 @@ describe("App - title collection reset", () => {
     // meeting memory and custom words must survive the reset
     expect(loadMeetingMemories()).toHaveLength(1);
     expect(JSON.parse(localStorage.getItem("yokomoji-bingo:customWords:v1")!)).toHaveLength(1);
+  });
+});
+
+describe("App - title acquisition flow", () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it("shows the acquisition modal on first unlock, before the Result screen", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByText("会議を始める"));
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+
+    expect(screen.getByText("NEW TITLE")).toBeInTheDocument();
+    expect(screen.getByText("称号を獲得しました")).toBeInTheDocument();
+    // Result screen content is not shown yet.
+    expect(screen.queryByText("コレクションを見る")).not.toBeInTheDocument();
+  });
+
+  it("proceeds to the Result screen (showing the same title) after 結果を見る", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByText("会議を始める"));
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" }));
+
+    expect(screen.getByText("横文字見習い")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "コレクションを見る" })).toBeInTheDocument();
+    expect(screen.queryByText("NEW TITLE")).not.toBeInTheDocument();
+  });
+
+  it("does not show the acquisition modal when the same title is unlocked again", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // first unlock
+    await user.click(screen.getByText("会議を始める"));
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" }));
+    await user.click(screen.getByRole("button", { name: "もう一度遊ぶ" }));
+
+    // second meeting, same yokomoji_apprentice condition again
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+
+    // straight to Result, no acquisition modal
+    expect(screen.queryByText("NEW TITLE")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "コレクションを見る" })).toBeInTheDocument();
+    expect(screen.getByText(/この称号を再獲得しました/)).toBeInTheDocument();
+  });
+
+  it("shows the acquisition modal again after a collection reset", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByText("会議を始める"));
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" }));
+
+    await user.click(screen.getByRole("button", { name: "コレクションを見る" }));
+    await user.click(screen.getByRole("button", { name: "意識を初期化する" }));
+    await user.click(screen.getByRole("button", { name: "初期化する" }));
+    await user.click(screen.getByRole("button", { name: "閉じる" })); // back to Result (came from Result)
+
+    await user.click(screen.getByRole("button", { name: "もう一度遊ぶ" }));
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+
+    expect(screen.getByText("NEW TITLE")).toBeInTheDocument();
+  });
+
+  it("never shows the acquisition modal for NO_TITLE (nothing selected)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByText("会議を始める"));
+    await user.click(screen.getByText("会議を終了する"));
+
+    expect(screen.queryByText("NEW TITLE")).not.toBeInTheDocument();
+    expect(screen.getByText("まだ日本語で会話できる人")).toBeInTheDocument();
+  });
+});
+
+describe("App - collection card image display and zoom", () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it("shows an image for an unlocked title and none for locked titles", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByText("会議を始める"));
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" }));
+    await user.click(screen.getByRole("button", { name: "コレクションを見る" }));
+
+    // exactly one unlocked card, exactly one <img> in the whole list
+    expect(document.querySelectorAll(".collection-card.unlocked")).toHaveLength(1);
+    expect(document.querySelectorAll(".collection-card.locked img")).toHaveLength(0);
+    expect(document.querySelectorAll(".collection-list img")).toHaveLength(1);
+  });
+
+  it("opens a zoom modal when an unlocked card is tapped, and it can be closed", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByText("会議を始める"));
+    await user.click(document.querySelectorAll(".bingo-grid > button")[0]);
+    await user.click(screen.getByText("会議を終了する"));
+    await user.click(screen.getByRole("button", { name: "結果を見る" }));
+    await user.click(screen.getByRole("button", { name: "コレクションを見る" }));
+
+    await user.click(document.querySelector(".collection-card.unlocked")!);
+    expect(document.querySelector(".card-zoom-overlay")).toBeInTheDocument();
+
+    await user.click(document.querySelector(".card-zoom-close")!);
+    expect(document.querySelector(".card-zoom-overlay")).not.toBeInTheDocument();
   });
 });

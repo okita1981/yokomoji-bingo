@@ -23,7 +23,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // 称号カード画像(20枚・合計約4.3MB)もプリキャッシュ対象に含める。
+        // 最適化後の合計容量が小さいため、案A（全画像プリキャッシュ）を採用した。詳細はdocs/title-card-assets.md参照。
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webp}'],
       },
     }),
   ],

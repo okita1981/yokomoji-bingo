@@ -5,6 +5,7 @@ import { NO_TITLE, titleDefinitions } from "../data/titles";
 
 const baseProps = {
   bingoCount: 1,
+  unlockCount: 1,
   selectedWords: [],
   meetingMinutes: "テストの議事録",
   translation: "テストの翻訳。要するに、みんなで頑張ります。",
@@ -14,21 +15,26 @@ const baseProps = {
 
 describe("Result screen", () => {
   it("renders without a broken image when imagePath is null", () => {
-    render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={false} />);
-    expect(screen.getByText(titleDefinitions[0].name)).toBeInTheDocument();
-    expect(screen.getByText(titleDefinitions[0].description)).toBeInTheDocument();
+    const noImage = { ...titleDefinitions[0], imagePath: null };
+    render(<Result {...baseProps} titleDef={noImage} isNewTitle={false} />);
+    expect(screen.getByText(noImage.name)).toBeInTheDocument();
+    expect(screen.getByText(noImage.description)).toBeInTheDocument();
     expect(document.querySelector("img")).not.toBeInTheDocument();
   });
 
   it("renders correctly for NO_TITLE (no bingo achieved)", () => {
-    render(<Result {...baseProps} titleDef={NO_TITLE} bingoCount={0} isNewTitle={false} />);
+    render(<Result {...baseProps} titleDef={NO_TITLE} bingoCount={0} unlockCount={0} isNewTitle={false} />);
     expect(screen.getByText("まだ日本語で会話できる人")).toBeInTheDocument();
   });
 
   it("shows the image element when imagePath is set", () => {
-    const withImage = { ...titleDefinitions[0], imagePath: "/images/titles/example.webp" };
-    render(<Result {...baseProps} titleDef={withImage} isNewTitle={false} />);
+    render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={false} />);
     expect(document.querySelector("img")).toBeInTheDocument();
+  });
+
+  it("shows the rarity badge", () => {
+    render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={false} />);
+    expect(screen.getByText(titleDefinitions[0].rarity)).toBeInTheDocument();
   });
 
   it("labels the translation section as 翻訳, not 現場のおじさん翻訳", () => {
@@ -47,6 +53,17 @@ describe("Result screen", () => {
     expect(screen.queryByText("NEW")).not.toBeInTheDocument();
   });
 
+  it("shows a re-acquired message with unlockCount when not new and unlockCount > 1", () => {
+    render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={false} unlockCount={3} />);
+    expect(screen.getByText(/この称号を再獲得しました/)).toBeInTheDocument();
+    expect(screen.getByText(/3回/)).toBeInTheDocument();
+  });
+
+  it("does not show a re-acquired message on the very first unlock (unlockCount=1, isNewTitle=true)", () => {
+    render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={true} unlockCount={1} />);
+    expect(screen.queryByText(/再獲得/)).not.toBeInTheDocument();
+  });
+
   it("has a link to the title collection", () => {
     render(<Result {...baseProps} titleDef={titleDefinitions[0]} isNewTitle={false} />);
     expect(screen.getByRole("button", { name: "コレクションを見る" })).toBeInTheDocument();
@@ -57,5 +74,15 @@ describe("Result screen", () => {
     expect(screen.getByText("本日の議事録")).toBeInTheDocument();
     expect(screen.getByText("テストの議事録")).toBeInTheDocument();
     expect(screen.queryByText("ラスボス文章")).not.toBeInTheDocument();
+  });
+
+  it("still shows the meeting minutes and translation when the image fails to load", () => {
+    const brokenImage = { ...titleDefinitions[0], imagePath: "/images/titles/does-not-exist.webp" };
+    render(<Result {...baseProps} titleDef={brokenImage} isNewTitle={false} />);
+    const img = document.querySelector("img")!;
+    img.dispatchEvent(new Event("error"));
+    expect(screen.getByText("本日の議事録")).toBeInTheDocument();
+    expect(screen.getByText("テストの議事録")).toBeInTheDocument();
+    expect(screen.getByText("翻訳")).toBeInTheDocument();
   });
 });

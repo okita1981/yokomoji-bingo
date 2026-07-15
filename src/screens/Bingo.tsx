@@ -1,4 +1,5 @@
 import type { Word } from "../data/words";
+import type { TitleRarity } from "../data/titles";
 import { BingoCard } from "../components/BingoCard";
 import { BingoModal } from "../components/BingoModal";
 import { CustomWordInput } from "../components/CustomWordInput";
@@ -10,6 +11,7 @@ type Props = {
   selectedCount: number;
   justBingo: boolean;
   modalTitle: string;
+  modalTitleRarity: TitleRarity;
   modalTitleImagePath: string | null;
   modalTitleIsNew: boolean;
   onToggle: (index: number) => void;
@@ -27,6 +29,7 @@ export function Bingo({
   selectedCount,
   justBingo,
   modalTitle,
+  modalTitleRarity,
   modalTitleImagePath,
   modalTitleIsNew,
   onToggle,
@@ -73,6 +76,7 @@ export function Bingo({
       {justBingo && (
         <BingoModal
           title={modalTitle}
+          rarity={modalTitleRarity}
           imagePath={modalTitleImagePath}
           isNew={modalTitleIsNew}
           onClose={onAcknowledgeBingo}

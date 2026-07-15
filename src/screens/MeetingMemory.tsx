@@ -2,6 +2,7 @@ import { useState } from "react";
 import { titleDefinitions, NO_TITLE } from "../data/titles";
 import type { MeetingMemory as MeetingMemoryData } from "../utils/meetingMemory";
 import { TitleImage } from "../components/TitleImage";
+import { RarityBadge } from "../components/RarityBadge";
 import { shareResult } from "../utils/share";
 
 type Props = {
@@ -40,7 +41,8 @@ export function MeetingMemory({ memories, onClose, onDeleteOne, onDeleteAll }: P
           </button>
         </div>
 
-        <TitleImage imagePath={def.imagePath} alt={def.name} className="result-title-image" />
+        <TitleImage imagePath={def.imagePath} alt={`${def.name}の称号キャラクターカード`} className="result-title-image" />
+        <RarityBadge rarity={def.rarity} />
         <h2 className="result-title">{def.name}</h2>
         <p className="result-title-description">{def.description}</p>
 
