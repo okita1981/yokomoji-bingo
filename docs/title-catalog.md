@@ -108,7 +108,7 @@ export type UnlockedTitleRecord = {
 | 8 | `aspiration_manager` | `08-aspiration-manager.webp` | `/images/titles/08-aspiration-manager.webp` | 900×1200 | 257KB | Created | Implemented |
 | 9 | `milestone_director` | `09-milestone-director.webp` | `/images/titles/09-milestone-director.webp` | 900×1200 | 263KB | Created | Implemented |
 | 10 | `northstar_reacher` | `10-northstar-reacher.webp` | `/images/titles/10-northstar-reacher.webp` | 900×1200 | 249KB | Created | Implemented |
-| 11 | `narrative_officer` | `11-narrative-officer.webp` | `/images/titles/11-narrative-officer.webp` | 900×1200 | 249KB | Created | Implemented |
+| 11 | `narrative_officer` | `11-narrative-officer.webp` | `/images/titles/11-narrative-officer.webp` | 900×1200 | 248KB | Created | Implemented |
 | 12 | `corporate_planning_prodigy` | `12-corporate-planning-prodigy.webp` | `/images/titles/12-corporate-planning-prodigy.webp` | 900×1200 | 256KB | Created | Implemented |
 | 13 | `capability_head` | `13-capability-head.webp` | `/images/titles/13-capability-head.webp` | 900×1200 | 292KB | Created | Implemented |
 | 14 | `synergy_executive` | `14-synergy-executive.webp` | `/images/titles/14-synergy-executive.webp` | 900×1200 | 315KB | Created | Implemented |
